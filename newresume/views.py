@@ -50,18 +50,22 @@ def login(request):
     if request.method=='POST':
         form2=LoginForm(request.POST)
         if form2.is_valid():
-            username=request.POST['user_mail']
+            mail1=request.POST['user_mail']
             password3=request.POST['user_password']
-            user = authenticate(request, username=username, password=password3)
-            a=f"Email: {username}"
+            user_exists = SignIn.objects.filter(mail=mail1).exists()
+            a=f"Email: {user_exists}"
             b=f"Password: {password3}"
             print(a,b)
-            print(user)
-            if user is  not None:
-                form2.save()
-                return redirect('/newresume')
+            print(user_exists)
+            if user_exists:
+                user = SignIn.objects.get(mail=mail1)
+                if user.password == password3:
+                    return newResume(request)
+                else:
+                    return HttpResponse("Incorrect Password")
             else:
-                return HttpResponse('You did not have any account in Resume Bilder.Please Sign In to continue')
+                return HttpResponse("User does not exist. Please sign up.")
+
             
     return render(request,'newresume/login.html',dict2)
 
